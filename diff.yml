@@ -1,17 +1,12 @@
 - hosts: cisco
   gather_facts: false
-  vars:
-    intended: |
-      interface Loopback0
-       description Ansible lab loopback
-       ip address 10.255.255.1 255.255.255.255
   tasks:
     - name: Get current Loopback0 config
       cisco.ios.ios_command:
         commands: show running-config | section interface Loopback0
       register: current
 
-    - name: Save current config (before)
+    - name: Save current (before)
       ansible.builtin.copy:
         content: "{{ current.stdout[0] | trim }}\n"
         dest: "/tmp/{{ inventory_hostname }}-Loopback0.cfg"
@@ -21,7 +16,10 @@
 
     - name: Compare with intended (after)
       ansible.builtin.copy:
-        content: "{{ intended }}"
+        content: |
+          interface Loopback0
+           description {{ loopback0.description }}
+           ip address {{ loopback0.ip }}
         dest: "/tmp/{{ inventory_hostname }}-Loopback0.cfg"
       delegate_to: localhost
       check_mode: true

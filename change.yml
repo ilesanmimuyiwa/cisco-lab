@@ -5,11 +5,5 @@
       cisco.ios.ios_config:
         parents: interface Loopback0
         lines:
-          - description Ansible lab loopback
-          - ip address 10.200.200.1 255.255.255.255
-      register: result
-
-    - name: Show commands that would be pushed
-      ansible.builtin.debug:
-        var: result.updates
-      when: result.updates | default([]) | length > 0
+          - "description {{ loopback0.description }}"
+          - "ip address {{ loopback0.ip }}"
