@@ -1,0 +1,13 @@
+- hosts: cisco
+  gather_facts: false
+  tasks:
+    - name: Get running config
+      cisco.ios.ios_command:
+        commands: show running-config
+      register: run
+
+    - name: Save to configs/
+      ansible.builtin.copy:
+        content: "{{ run.stdout[0] }}\n"
+        dest: "configs/{{ inventory_hostname }}.cfg"
+      delegate_to: localhost
