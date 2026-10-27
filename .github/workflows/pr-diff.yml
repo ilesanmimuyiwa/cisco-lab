@@ -1,3 +1,36 @@
+name: Config diff PR
+on:
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  diff:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate diff
+        env:
+          VAULT_PW: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          ANSIBLE_NOCOLOR: "1"
+        run: |
+          echo "$VAULT_PW" > .vp && chmod 600 .vp
+          ansible-playbook diff.yml --vault-password-file .vp > diff.txt 2>&1 || true
+          rm -f .vp
+          {
+            echo "## Config diff (commit ${GITHUB_SHA::7})"
+            echo '```diff'
+            cat diff.txt
+            echo '```'
+          } > pr-body.md
+
+      - name: Create or update PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           b="${GITHUB_REF_NAME}"
           num=$(gh pr list --head "$b" --state open --json number -q '.[0].number')
