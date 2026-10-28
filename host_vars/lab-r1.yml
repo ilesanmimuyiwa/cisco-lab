@@ -1,3 +1,3 @@
 loopback0:
   description: Ansible lab loopback v2
-  ip: 10.255.255.1 255.255.255.255
+  ip: 10.1.1.1 255.255.255.255
